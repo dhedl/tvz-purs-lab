@@ -42,17 +42,16 @@ def index():
 def delete(id_stupca):
     id_podatka = request.args.get('id_podatka')
 
-    if id_podatka == '1':
-        
-        g.cursor.execute(render_template('deleteTemperature.sql', id_temp=id_stupca))  
-        return redirect(url_for('index', id=id_podatka))
-
-    elif id_podatka == '2':
+    if id_podatka == '2':
         g.cursor.execute(render_template('deleteHumidity.sql', id_hum=id_stupca))
         return redirect(url_for('index', id=id_podatka))
-    
-    else:
-        return
+
+    else:    
+        g.cursor.execute(render_template('deleteTemperature.sql', id_temp=id_stupca))  
+        if id_podatka == '1':
+            return redirect(url_for('index', id=id_podatka))
+        else:
+            return redirect(url_for('index'))
 
 @app.get('/login')
 def login():
