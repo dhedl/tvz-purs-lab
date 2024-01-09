@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{naslov}}</title>
+    <link rel="stylesheet"  href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<div class="kont">
+    <header>
+        <div class="user">
+            <p>{{username | lower}}</p>
+            <img src="{{ url_for('static', filename='images/user-icon.png') }}" alt="User Icon" width="70px">  
+        </div>
+        <img class="slika2" src="{{ url_for('static', filename='images/icon.png') }}" alt="Icon" width="70px">
+    </header>
+    <nav>
+        <a href="{{ url_for('logout') }}">Logout</a>
+        <a href="?id=1">Temperatura</a>
+        <a href="?id=2">Vlaga</a>
+    </nav>
+    <main>
+        <table>
+            <thead>
+                <th>Datum</th>  
+                <th>{{tip}}</th>
+            </thead>  
+            <tbody>
+              
+                {%for d in data%}
+                <tr>
+                    <td >{{d[1]}}</td>
+                    <td >{{d[2]}}</td>
+                </tr>
+                {%endfor%}
+
+                {% if tip == 'Temperatura' %}
+                <tr>
+                    <td colspan="2"> 
+                        <form method="POST" action="{{ url_for('delete_last_temp') }}">
+                            <button type="submit">Obriši</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endif %}
+
+                {% if tip == 'Vlaga' %}
+                <tr>
+                    <td colspan="2"> 
+                        <form method="POST" action="{{ url_for('delete_last_hum') }}">
+                            <button type="submit">Obriši</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>            
+        </table>
+    </main>
+</div>
+</body>
+</html>
