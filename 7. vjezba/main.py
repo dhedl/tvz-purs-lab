@@ -95,11 +95,7 @@ def put_temperatura():
 
 @app.get('/temperatura')
 def last_temperature():
-    user_id = session.get('id')  
-    
-    getLastTemp = render_template('getLastTemperature.sql')
-    
-    g.cursor.execute(getLastTemp, (user_id,))
+    g.cursor.execute(render_template('getLastTemperature.sql'))
     last_temperature = g.cursor.fetchone()
     
     if last_temperature:
