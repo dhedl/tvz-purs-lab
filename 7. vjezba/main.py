@@ -24,44 +24,35 @@ def after_request_func(response):
 
 @app.get('/')
 def index():   
-    user_id = session.get('id')
     id = request.args.get('id')
 
     if id == '1' or id is None:
-        if user_id is not None:
-            getTemp = render_template('getTemperature.sql')
-            g.cursor.execute(getTemp, (user_id,))
-            user_temps = g.cursor.fetchall()
-            response = render_template('index.html', naslov='Početna stranica', username=session.get('username'), data=user_temps, tip='Temperatura')
+        g.cursor.execute(render_template('getTemperature.sql', id_korisnika=session.get('id')))
+        user_temps = g.cursor.fetchall()
+        response = render_template('index.html', naslov='Početna stranica', username=session.get('username'), data=user_temps, tip='Temperatura', tip_podatka = id)
         return response, 200
     
-    if id == '2':
-        if user_id is not None:
-            getHmds = render_template('getHumidity.sql')
-            g.cursor.execute(getHmds, (user_id,))
-            user_hmds = g.cursor.fetchall()
-            response = render_template('index.html', naslov='Početna stranica', username=session.get('username'), data=user_hmds, tip='Vlaga')
+    if id == '2':   
+        g.cursor.execute(render_template('getHumidity.sql', id_korisnika=session.get('id')))
+        user_hmds = g.cursor.fetchall()
+        response = render_template('index.html', naslov='Početna stranica', username=session.get('username'), data=user_hmds, tip='Vlaga', tip_podatka = id)
         return response, 200
     
-@app.post('/delete_last_temp')
-def delete_last_temp():
-    user_id = session.get('id')
+@app.post('/delete/<int:id_stupca>')
+def delete(id_stupca):
+    id_podatka = request.args.get('id_podatka')
 
-    deleteTemp = render_template('deleteLastTemperature.sql')
-    g.cursor.execute(deleteTemp, (user_id,))
-    g.connection.commit()
+    if id_podatka == '1':
+        
+        g.cursor.execute(render_template('deleteTemperature.sql', id_temp=id_stupca))  
+        return redirect(url_for('index', id=id_podatka))
 
-    return redirect(url_for('index'))
-
-@app.post('/delete_last_hum')
-def delete_last_hum():
-    user_id = session.get('id')
-
-    deleteHum = render_template('deleteLastHumidity.sql')
-    g.cursor.execute(deleteHum, (user_id,))
-    g.connection.commit()
-
-    return redirect(url_for('index', id = 2))
+    elif id_podatka == '2':
+        g.cursor.execute(render_template('deleteHumidity.sql', id_hum=id_stupca))
+        return redirect(url_for('index', id=id_podatka))
+    
+    else:
+        return
 
 @app.get('/login')
 def login():
@@ -75,21 +66,16 @@ def logout():
 
 @app.post('/login')
 def check():
-    username = request.form.get('username')
-    password = request.form.get('password')
-
-    getUser = render_template('getUser.sql')
-    g.cursor.execute(getUser, (username, password))
+    g.cursor.execute(render_template('getUser.sql', username = request.form.get('username'), password = request.form.get('password')))
     user = g.cursor.fetchone()
 
     if user:
         session['id'] = user[0]
         session['username'] = user[1]
-        print(session.get('id'), session.get('username'))
         return redirect(url_for('index'))
         
     else:
-        return render_template('login.html', poruka='Uneseni su pogresni podaci')    
+        return render_template('login.html', naslov='Stranica za prijavu', poruka='Uneseni su pogresni podaci')    
         
 @app.post('/temperatura')
 def put_temperatura():
@@ -97,8 +83,8 @@ def put_temperatura():
     response = make_response()
 
     if request.json.get('temperatura') is not None:
-        query = render_template('writeTemperature.sql', value=request.json.get('temperatura'))
-        g.cursor.execute(query)
+        
+        g.cursor.execute(render_template('writeTemperature.sql', value=request.json.get('temperatura')))
         response.data = 'Uspješno ste postavili temperaturu'
         response.status_code = 201
 

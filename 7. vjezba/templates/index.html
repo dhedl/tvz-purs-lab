@@ -32,28 +32,13 @@
                 <tr>
                     <td >{{d[1]}}</td>
                     <td >{{d[2]}}</td>
+                    <td>
+                        <form action="{{ url_for('delete', id_stupca=d[0], id_podatka=tip_podatka[0]) }}" method="POST" >
+                            <input type="submit" value="Obriši" class="button">
+                        </form>
+                    </td>
                 </tr>
                 {%endfor%}
-
-                {% if tip == 'Temperatura' %}
-                <tr>
-                    <td colspan="2"> 
-                        <form method="POST" action="{{ url_for('delete_last_temp') }}">
-                            <button type="submit">Obriši</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endif %}
-
-                {% if tip == 'Vlaga' %}
-                <tr>
-                    <td colspan="2"> 
-                        <form method="POST" action="{{ url_for('delete_last_hum') }}">
-                            <button type="submit">Obriši</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endif %}
             </tbody>            
         </table>
     </main>
